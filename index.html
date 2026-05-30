@@ -539,18 +539,137 @@
       color: var(--lime);
     }
 
-    /* ─── FOOTER ─── */
-    .footer {
+    /* ─── RICH FOOTER ─── */
+    .site-footer {
       border-top: 1px solid var(--gray-bd);
-      padding: 18px 20px;
+      margin-top: 80px;
+      background: #050505;
+    }
+    .footer-main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 20px 40px;
+      display: grid;
+      grid-template-columns: 1.8fr 1fr 1fr;
+      gap: 40px;
+    }
+    .footer-brand-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--lime);
+      letter-spacing: -0.02em;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .footer-brand-tagline {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--gray-dim);
-      letter-spacing: 0.12em;
-      text-align: center;
-      margin-top: 60px;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      display: block;
     }
-    .footer span { color: #444; }
+    .footer-brand-desc {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      color: var(--gray-mid);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      max-width: 280px;
+    }
+    .footer-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .footer-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-mid);
+      border: 1px solid #2a2a2a;
+      padding: 4px 10px;
+      letter-spacing: 0.08em;
+    }
+    .footer-badge .badge-icon { color: var(--lime); margin-right: 5px; }
+    .footer-col-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--off-white);
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      display: block;
+    }
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-mid);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: var(--lime); }
+    .footer-links a::before { content: '> '; color: #333; }
+    .footer-links a:hover::before { color: var(--lime); }
+    .footer-inst-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      color: var(--gray-mid);
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+    .footer-inst-loc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-dim);
+      letter-spacing: 0.06em;
+      margin-top: 4px;
+    }
+    .footer-divider {
+      border: none;
+      border-top: 1px solid #161616;
+      margin: 0;
+    }
+    .footer-bottom {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-dim);
+      letter-spacing: 0.08em;
+    }
+    .footer-copy .heart { color: var(--lime); }
+    .footer-copy .name  { color: var(--off-white); }
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .footer-version {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--lime);
+      letter-spacing: 0.1em;
+    }
+    @media (max-width: 640px) {
+      .footer-main { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+    }
 
     /* ─── ERROR TOAST ─── */
     .toast {
@@ -684,8 +803,58 @@
   </div>
 
   <!-- FOOTER -->
-  <footer class="footer">
-    &gt; GRADEGRAVITY_v1.0 <span>·</span> CREATED BY HIMANK GARG(Y25) <span>·</span> LNMIIT
+  <footer class="site-footer">
+    <div class="footer-main">
+
+      <!-- Brand col -->
+      <div class="footer-brand">
+        <span class="footer-brand-logo">GradeGravity</span>
+        <span class="footer-brand-tagline">LNMIIT SGPA CALCULATOR &mdash; v1.0</span>
+        <p class="footer-brand-desc">
+          The most accurate SGPA calculator built specifically for LNMIIT B.Tech students.
+          Select your branch, pick your semester, enter grades &mdash; done.
+        </p>
+        <div class="footer-badges">
+          <span class="footer-badge"><span class="badge-icon">//</span> BUILT FOR LNMIIT</span>
+          <span class="footer-badge"><span class="badge-icon">//</span> 100% FREE</span>
+          <span class="footer-badge"><span class="badge-icon">//</span> OPEN SOURCE</span>
+        </div>
+      </div>
+
+      <!-- Quick Access col -->
+      <div class="footer-col">
+        <span class="footer-col-title">Quick Access</span>
+        <ul class="footer-links">
+          <li><a href="#branch-section">SGPA Calculator</a></li>
+          <li><a href="https://lnmiit.ac.in" target="_blank" rel="noopener">LNMIIT Portal</a></li>
+          <li><a href="https://github.com/p4bl0-26/gradegravity-lnmiit" target="_blank" rel="noopener">Source Code</a></li>
+          <li><a href="https://github.com/p4bl0-26/gradegravity-lnmiit/issues" target="_blank" rel="noopener">Report a Bug</a></li>
+        </ul>
+      </div>
+
+      <!-- LNMIIT col -->
+      <div class="footer-col">
+        <span class="footer-col-title">LNMIIT</span>
+        <ul class="footer-links">
+          <li><a href="https://lnmiit.ac.in" target="_blank" rel="noopener">Official Website &#8599;</a></li>
+          <li><a href="https://academics.lnmiit.ac.in" target="_blank" rel="noopener">Academics Portal &#8599;</a></li>
+        </ul>
+        <p class="footer-inst-name">The LNM Institute of<br>Information Technology</p>
+        <p class="footer-inst-loc">// Jaipur, Rajasthan &mdash; 302031</p>
+      </div>
+
+    </div>
+
+    <hr class="footer-divider" />
+
+    <div class="footer-bottom">
+      <span class="footer-copy">
+        &copy; 2025 GradeGravity &mdash; Made with <span class="heart">&hearts;</span> for LNMIIT students &mdash; by <span class="name">Himank Garg (Y25)</span>
+      </span>
+      <div class="footer-right">
+        <span class="footer-version">v1.0</span>
+      </div>
+    </div>
   </footer>
 
   <!-- TOAST -->
