@@ -10,11 +10,7 @@ Built for every LNMIIT student tired of calculating SGPA manually. Select your b
 ## What is this?
 
 GradeGravity is a free, fast, no-login SGPA calculator built specifically for **The LNM Institute of Information Technology, Jaipur** — covering the **Y23 curriculum** for all branches.
-
-The old calculator that circulated in college ([graderx.vercel.app](https://graderx.vercel.app/#calculator)) only worked for Semester 1 and required manual input for everything else. GradeGravity fixes that — every branch, every semester, fully auto-populated.
-
 ---
-
 ## Branches Supported
 
 | Branch | Status |
