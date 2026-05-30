@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GradeGravity — LNMIIT SGPA Calculator</title>
+  <meta name="description" content="GradeGravity: The official-style SGPA Calculator for LNMIIT B.Tech students. Select your branch and semester, enter grades, and calculate your SGPA instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── RESET & BASE ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080808;
+      --off-white: #f0f0e8;
+      --lime:      #b8ff57;
+      --gray-dim:  #555;
+      --gray-mid:  #888;
+      --gray-bd:   #333;
+      --gray-dark: #111;
+      --gray-muted:#2a2a2a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--off-white);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      /* Dot grid */
+      background-image: radial-gradient(circle, #ffffff0d 1px, transparent 1px);
+      background-size: 22px 22px;
+      position: relative;
+    }
+
+    /* ─── LAYOUT ─── */
+    .page-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+
+    /* ─── NOTICE BANNER ─── */
+    .notice-banner {
+      border: 1px solid var(--lime);
+      background: #080808;
+      padding: 10px 16px;
+      margin-bottom: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--lime);
+      letter-spacing: 0.05em;
+      line-height: 1.6;
+    }
+    .notice-banner span { color: var(--lime); }
+
+    /* ─── HEADER ─── */
+    .header {
+      padding: 36px 0 24px;
+      border-bottom: 1px solid var(--gray-bd);
+      margin-bottom: 32px;
+    }
+    .header-top {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--lime);
+      letter-spacing: -0.02em;
+    }
+    .logo-version {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-dim);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .header-sub {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--gray-mid);
+      letter-spacing: 0.06em;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ─── STEP LABEL ─── */
+    .step-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--gray-dim);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .step-label .step-num {
+      color: var(--lime);
+      margin-right: 6px;
+    }
+
+    /* ─── BRANCH GRID ─── */
+    .branch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 36px;
+    }
+
+    .branch-block {
+      border: 1px solid var(--gray-bd);
+      background: var(--bg);
+      padding: 16px 12px 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      position: relative;
+      user-select: none;
+    }
+    .branch-block:hover:not(.disabled):not(.active) {
+      border-color: var(--lime);
+    }
+    .branch-block.active {
+      background: var(--lime);
+      border-color: var(--lime);
+    }
+    .branch-block.active .branch-code { color: #080808; }
+    .branch-block.active .branch-name { color: #1a1a1a; }
+    .branch-block.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: #222;
+    }
+
+    .branch-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--off-white);
+      line-height: 1;
+      display: block;
+    }
+    .branch-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 9px;
+      color: var(--gray-mid);
+      margin-top: 5px;
+      letter-spacing: 0.05em;
+      line-height: 1.4;
+      display: block;
+    }
+    .coming-soon-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      color: var(--gray-dim);
+      letter-spacing: 0.15em;
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* ─── SEMESTER ROW ─── */
+    .semester-section {
+      display: none;
+      margin-bottom: 36px;
+    }
+    .semester-section.visible { display: block; }
+
+    .semester-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .sem-block {
+      border: 1px solid var(--gray-bd);
+      background: var(--bg);
+      padding: 10px 14px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--off-white);
+      letter-spacing: 0.08em;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .sem-block:hover:not(.active) { border-color: var(--lime); }
+    .sem-block.active {
+      background: var(--lime);
+      border-color: var(--lime);
+      color: #080808;
+    }
+
+    /* ─── COURSES SECTION ─── */
+    .courses-section {
+      display: none;
+      margin-bottom: 28px;
+    }
+    .courses-section.visible { display: block; }
+
+    .courses-header {
+      display: grid;
+      grid-template-columns: 1fr 72px 140px 48px;
+      gap: 8px;
+      padding: 6px 8px 8px;
+      border-bottom: 1px solid var(--gray-bd);
+      margin-bottom: 4px;
+    }
+    .col-hdr {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: var(--gray-dim);
+      text-transform: uppercase;
+    }
+
+    .course-row {
+      display: grid;
+      grid-template-columns: 1fr 72px 140px 48px;
+      gap: 8px;
+      padding: 8px 8px;
+      border-bottom: 1px solid #161616;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .course-row.appeared { opacity: 1; }
+
+    /* S/F tag on each normal row */
+    .sf-tag-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      border: 1px solid #2a2a2a;
+      background: transparent;
+      color: var(--gray-dim);
+      padding: 4px 5px;
+      cursor: pointer;
+      width: 100%;
+      transition: border-color 0.13s, color 0.13s, background 0.13s;
+      line-height: 1;
+    }
+    .sf-tag-btn:hover { border-color: var(--lime); color: var(--lime); }
+    .sf-tag-btn.sf-tag-active {
+      border-color: var(--lime);
+      color: #080808;
+      background: var(--lime);
+    }
+
+    /* credits earned row in result */
+    .credits-earned-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      border-top: 1px solid #1a1a1a;
+    }
+    .credits-earned-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--gray-dim);
+      text-transform: uppercase;
+    }
+    .credits-earned-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--off-white);
+    }
+
+    .course-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12.5px;
+      font-variant: small-caps;
+      color: var(--off-white);
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+    }
+
+    .credit-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--gray-mid);
+      text-align: center;
+      background: #111;
+      border: 1px solid #222;
+      padding: 3px 8px;
+    }
+
+    .grade-select {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--bg);
+      color: var(--off-white);
+      border: 1px solid var(--gray-bd);
+      padding: 5px 10px;
+      cursor: pointer;
+      outline: none;
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .grade-select:focus {
+      border-color: var(--lime);
+      color: var(--lime);
+    }
+    .grade-select option { background: #111; color: var(--off-white); }
+
+    /* ─── SEM 8 FLEXIBLE MESSAGE ─── */
+    .sem8-message {
+      border: 1px solid var(--gray-bd);
+      background: #0d0d0d;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-mid);
+      line-height: 1.7;
+      letter-spacing: 0.04em;
+    }
+    .sem8-message strong { color: var(--lime); }
+
+    .add-row-btn {
+      border: 1px solid var(--gray-bd);
+      background: transparent;
+      color: var(--gray-mid);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 8px 16px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .add-row-btn:hover { border-color: var(--lime); color: var(--lime); }
+
+    /* Custom row for sem 8 */
+    .custom-course-row {
+      display: grid;
+      grid-template-columns: 1fr 80px 140px 32px;
+      gap: 8px;
+      padding: 6px 8px;
+      border-bottom: 1px solid #161616;
+      align-items: center;
+    }
+    .custom-input {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--bg);
+      color: var(--off-white);
+      border: 1px solid var(--gray-bd);
+      padding: 5px 8px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    .custom-input:focus { border-color: var(--lime); }
+    .custom-input::placeholder { color: var(--gray-dim); }
+    .remove-row-btn {
+      background: transparent;
+      border: 1px solid #2a2a2a;
+      color: var(--gray-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px 6px;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .remove-row-btn:hover { border-color: #ff4444; color: #ff4444; }
+
+    /* ─── S/F TOGGLE ─── */
+    .sf-toggle {
+      display: flex;
+      gap: 6px;
+    }
+    .sf-btn {
+      border: 1px solid var(--gray-bd);
+      background: var(--bg);
+      color: var(--off-white);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: border-color 0.13s, background 0.13s, color 0.13s;
+      user-select: none;
+      line-height: 1;
+    }
+    .sf-btn:hover:not(.sf-active) { border-color: var(--lime); }
+    .sf-btn.sf-active {
+      background: var(--lime);
+      border-color: var(--lime);
+      color: #080808;
+    }
+    .sf-btn.sf-fail-active {
+      background: #333;
+      border-color: #555;
+      color: var(--off-white);
+    }
+
+    /* ─── CALCULATE BUTTON ─── */
+    .calc-btn-wrap { margin-top: 20px; }
+    .calc-btn {
+      width: 100%;
+      border: 2px solid var(--lime);
+      background: transparent;
+      color: var(--lime);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      padding: 16px 24px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.18s, color 0.18s;
+    }
+    .calc-btn:hover { background: var(--lime); color: #080808; }
+    .calc-btn:active { opacity: 0.85; }
+
+    /* ─── RESULT SECTION ─── */
+    .result-section {
+      display: none;
+      border: 1px solid var(--gray-bd);
+      background: #0a0a0a;
+      margin-top: 32px;
+      overflow: hidden;
+    }
+    .result-section.visible {
+      display: block;
+      animation: slideUp 0.35s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-top {
+      padding: 36px 32px 28px;
+      text-align: center;
+      border-bottom: 1px solid var(--gray-bd);
+    }
+
+    .sgpa-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      color: var(--gray-mid);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .sgpa-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 96px;
+      font-weight: 700;
+      color: var(--lime);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      display: block;
+    }
+
+    .sgpa-status {
+      margin-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--gray-mid);
+      letter-spacing: 0.15em;
+    }
+
+    /* ─── BREAKDOWN TABLE ─── */
+    .breakdown-wrap {
+      padding: 0;
+    }
+
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .breakdown-table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: var(--gray-dim);
+      text-transform: uppercase;
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-bd);
+      background: #080808;
+    }
+    .breakdown-table td {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--off-white);
+      padding: 9px 16px;
+      border-bottom: 1px solid #151515;
+    }
+    .breakdown-table td.course-col {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-variant: small-caps;
+      color: var(--off-white);
+    }
+    .breakdown-table td.ws-above { color: var(--lime); }
+    .breakdown-table td.ws-below { color: var(--gray-mid); }
+
+    .breakdown-footer {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--gray-bd);
+    }
+    .breakdown-footer-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--gray-dim);
+      text-transform: uppercase;
+    }
+    .breakdown-footer-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--lime);
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      border-top: 1px solid var(--gray-bd);
+      padding: 18px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-dim);
+      letter-spacing: 0.12em;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .footer span { color: #444; }
+
+    /* ─── ERROR TOAST ─── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      border: 1px solid #ff4444;
+      background: #0a0a0a;
+      color: #ff4444;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 12px 18px;
+      letter-spacing: 0.08em;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .toast.show { opacity: 1; pointer-events: auto; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      .branch-grid { grid-template-columns: repeat(2, 1fr); }
+      .sgpa-number { font-size: 64px; }
+      .semester-row { gap: 5px; }
+      .sem-block { padding: 8px 10px; font-size: 11px; }
+      .courses-header,
+      .course-row { grid-template-columns: 1fr 60px 110px; }
+      .breakdown-table th, .breakdown-table td { padding: 8px 8px; font-size: 10px; }
+    }
+    @media (max-width: 420px) {
+      .branch-grid { grid-template-columns: 1fr 1fr; }
+      .logo { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NOTICE BANNER -->
+  <div class="notice-banner">
+    ⚠ CURRICULUM DATA FOR <strong>CSE (CYBER SECURITY)</strong> AND <strong>ECE (VLSI DESIGN &amp; TECHNOLOGY)</strong> WILL BE ADDED SOON. CHECK BACK LATER.
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-top">
+        <span class="logo">GradeGravity</span>
+        <span class="logo-version">v1.0 · SGPA CALCULATOR</span>
+      </div>
+      <div class="header-sub">LNMIIT · B.TECH SGPA CALCULATOR</div>
+    </header>
+
+    <!-- STEP 1: BRANCH -->
+    <section id="branch-section">
+      <div class="step-label"><span class="step-num">01_</span>SELECT BRANCH</div>
+      <div class="branch-grid" id="branch-grid">
+        <!-- injected by JS -->
+      </div>
+    </section>
+
+    <!-- STEP 2: SEMESTER -->
+    <section class="semester-section" id="semester-section">
+      <div class="step-label"><span class="step-num">02_</span>SELECT SEMESTER</div>
+      <div class="semester-row" id="semester-row">
+        <!-- injected by JS -->
+      </div>
+    </section>
+
+    <!-- STEP 3: COURSES -->
+    <section class="courses-section" id="courses-section">
+      <div class="step-label"><span class="step-num">03_</span>ENTER GRADES</div>
+      <div class="courses-header">
+        <span class="col-hdr">COURSE</span>
+        <span class="col-hdr" style="text-align:center;">CREDITS</span>
+        <span class="col-hdr">GRADE</span>
+        <span class="col-hdr" style="text-align:center;font-size:8px;">S/F?</span>
+      </div>
+      <div id="courses-list">
+        <!-- rows injected by JS -->
+      </div>
+
+      <div id="sem8-wrap" style="display:none;">
+        <div class="sem8-message">
+          <strong>⚠ FLEXIBLE SEMESTER</strong><br>
+          Industrial SLI / Thesis / Electives / Project+Electives / Internship+Electives.<br>
+          All options = 12 credits. Add your courses manually below.
+        </div>
+        <button class="add-row-btn" id="add-row-btn">+ ADD COURSE ROW</button>
+        <div id="custom-rows-list"></div>
+      </div>
+
+      <div class="calc-btn-wrap">
+        <button class="calc-btn" id="calc-btn">EXECUTE CALCULATION_</button>
+      </div>
+    </section>
+
+    <!-- RESULT SECTION -->
+    <section class="result-section" id="result-section">
+      <div class="result-top">
+        <div class="sgpa-label">SEMESTER GRADE POINT AVERAGE</div>
+        <span class="sgpa-number" id="sgpa-display">0.00</span>
+        <div class="sgpa-status" id="sgpa-status">STATUS: —</div>
+      </div>
+      <div class="breakdown-wrap">
+        <table class="breakdown-table" id="breakdown-table">
+          <thead>
+            <tr>
+              <th>COURSE</th>
+              <th>CREDITS</th>
+              <th>GRADE</th>
+              <th>GRADE PTS</th>
+              <th>WTD SCORE</th>
+            </tr>
+          </thead>
+          <tbody id="breakdown-body">
+          </tbody>
+        </table>
+        <div class="credits-earned-row">
+          <span class="credits-earned-label">CREDITS EARNED</span>
+          <span class="credits-earned-val" id="credits-earned-display">—</span>
+        </div>
+        <div class="breakdown-footer">
+          <span class="breakdown-footer-label">SGPA</span>
+          <span class="breakdown-footer-val" id="footer-sgpa">—</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    &gt; GRADEGRAVITY_v1.0 <span>·</span> CREATED BY HIMANK GARG(Y25) <span>·</span> LNMIIT
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+  // ═══════════════════════════════════════════════
+  //  S/F GRADED COURSES (excluded from SGPA)
+  // ═══════════════════════════════════════════════
+  // Key: "BRANCH|SEM|COURSE_NAME" — matches exactly
+  // Use '*' for branch wildcard (applies to all branches)
+  const SF_RULES = [
+    { branch: '*',     sem: 1, name: 'Indian Knowledge System' },
+    { branch: '*',     sem: 2, name: 'Environmental Science'   },
+    { branch: 'AIDS',  sem: 6, name: 'Disaster Management'     },
+    { branch: 'AI',    sem: 6, name: 'Disaster Management'     },
+  ];
+
+  function isSFCourse(branch, sem, name) {
+    return SF_RULES.some(r =>
+      (r.branch === '*' || r.branch === branch) &&
+      r.sem === sem &&
+      r.name === name
+    );
+  }
+
+  // ═══════════════════════════════════════════════
+  //  CURRICULUM DATA
+  // ═══════════════════════════════════════════════
+  const CURRICULUM = {
+    CSE: {
+      name: 'Computer Science and Engineering',
+      semesters: {
+        1: [
+          { name: 'Classical Physics', credits: 4 },
+          { name: 'Calculus and ODE', credits: 4 },
+          { name: 'Basic Electronics', credits: 4 },
+          { name: 'Basic Electronics Lab', credits: 1.5 },
+          { name: 'Programming for Problem Solving', credits: 4.5 },
+          { name: 'Technical Communication in English', credits: 3 },
+          { name: 'Indian Knowledge System', credits: 1 },
+        ],
+        2: [
+          { name: 'Human Values and Ethics', credits: 3 },
+          { name: 'Environmental Science', credits: 1 },
+          { name: 'Linear Algebra and Complex Analysis', credits: 4 },
+          { name: 'Data Structures and Algorithms', credits: 4.5 },
+          { name: 'UG Physics Laboratory', credits: 1.5 },
+          { name: 'Introduction to Scripting Languages', credits: 1 },
+          { name: 'Digital Systems', credits: 4 },
+          { name: 'Discrete Mathematics', credits: 3 },
+        ],
+        3: [
+          { name: 'Probability and Statistics', credits: 4 },
+          { name: 'Signals and Systems', credits: 3 },
+          { name: 'Computer Organization and Architecture', credits: 4 },
+          { name: 'Database Management Systems', credits: 4 },
+          { name: 'Object Oriented Programming', credits: 4 },
+          { name: 'Design and Analysis of Algorithms', credits: 4 },
+        ],
+        4: [
+          { name: 'Constitutional Studies', credits: 1 },
+          { name: 'Principles of Management', credits: 3 },
+          { name: 'Web Programming', credits: 1 },
+          { name: 'Theory of Computation', credits: 3 },
+          { name: 'Operating Systems', credits: 4 },
+          { name: 'Computer Networks', credits: 4 },
+          { name: 'Data Science', credits: 3 },
+          { name: 'Program Elective 1', credits: 3 },
+        ],
+        5: [
+          { name: 'Summer Internship / Project', credits: 4 },
+          { name: 'Psychology Technology and Society', credits: 3 },
+          { name: 'Software Engineering', credits: 3 },
+          { name: 'Artificial Intelligence', credits: 4 },
+          { name: 'Computer System Security', credits: 4 },
+          { name: 'Software Development Lab', credits: 1 },
+          { name: 'Program Elective 2', credits: 3 },
+        ],
+        6: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Introduction to Economics', credits: 3 },
+          { name: 'Seminar and Presentation Skills', credits: 1 },
+          { name: 'Numerical Analysis and Scientific Computing', credits: 4 },
+          { name: 'Program Elective 3', credits: 3 },
+          { name: 'Program Elective 4', credits: 3 },
+          { name: 'Open Elective 1', credits: 3 },
+        ],
+        7: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Program Elective 5', credits: 3 },
+          { name: 'Program Elective 6', credits: 3 },
+          { name: 'Open Elective 2', credits: 3 },
+          { name: 'Open Elective 3', credits: 3 },
+        ],
+        8: 'FLEXIBLE',
+      }
+    },
+    ME: {
+      name: 'Mechanical Engineering',
+      semesters: {
+        1: [
+          { name: 'Classical Physics', credits: 4 },
+          { name: 'Calculus and ODE', credits: 4 },
+          { name: 'Basic Electronics', credits: 4 },
+          { name: 'Basic Electronics Lab', credits: 1.5 },
+          { name: 'Programming for Problem Solving', credits: 4.5 },
+          { name: 'Technical Communication in English', credits: 3 },
+          { name: 'Indian Knowledge System', credits: 1 },
+        ],
+        2: [
+          { name: 'Human Values and Ethics', credits: 3 },
+          { name: 'Environmental Science', credits: 1 },
+          { name: 'Linear Algebra and Complex Analysis', credits: 4 },
+          { name: 'Data Structures and Algorithms', credits: 4.5 },
+          { name: 'UG Physics Lab', credits: 1.5 },
+          { name: 'Introduction to Scripting Languages', credits: 1 },
+          { name: 'Introduction to Mechanical Engineering', credits: 1 },
+          { name: 'Engineering Drawing and Graphics', credits: 1.5 },
+          { name: 'Workshop Practices', credits: 1.5 },
+          { name: 'Engineering Physical Metallurgy', credits: 3 },
+        ],
+        3: [
+          { name: 'Probability and Statistics', credits: 4 },
+          { name: 'Mechanics of Solids', credits: 4 },
+          { name: 'Rigid Body Dynamics', credits: 2 },
+          { name: 'Engineering Thermodynamics', credits: 4 },
+          { name: 'Welding and Casting', credits: 4 },
+          { name: 'Electrical Technology', credits: 3 },
+        ],
+        4: [
+          { name: 'Constitutional Studies', credits: 1 },
+          { name: 'Design of Machine Elements', credits: 3 },
+          { name: 'Fluid Mechanics and Machinery', credits: 5 },
+          { name: 'Machining and Metal Forming', credits: 4 },
+          { name: 'Mechanisms and Machines', credits: 3 },
+          { name: 'Introduction to Computational Methods', credits: 1 },
+          { name: 'Industrial Measurements', credits: 4 },
+        ],
+        5: [
+          { name: 'Summer Internship / Project', credits: 4 },
+          { name: 'Heat Transfer', credits: 4 },
+          { name: 'Design of Transmission Elements', credits: 4 },
+          { name: 'Digital Manufacturing', credits: 4 },
+          { name: 'Robotics and Control', credits: 3 },
+          { name: 'Mechatronics and IoT', credits: 3 },
+        ],
+        6: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Introduction to Economics', credits: 3 },
+          { name: 'Seminar and Presentation Skills', credits: 1 },
+          { name: 'IC Engines', credits: 4 },
+          { name: 'Finite Element Methods', credits: 3 },
+          { name: 'Industrial Engineering and Management', credits: 3 },
+          { name: 'Program Elective 1', credits: 3 },
+        ],
+        7: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Open Elective 1', credits: 3 },
+          { name: 'Program Elective 2', credits: 3 },
+          { name: 'Program Elective 3', credits: 3 },
+          { name: 'Program Elective 4', credits: 3 },
+          { name: 'Open Elective 2', credits: 3 },
+        ],
+        8: 'FLEXIBLE',
+      }
+    },
+    ECE: {
+      name: 'Electronics and Communication Engineering',
+      semesters: {
+        1: [
+          { name: 'Classical Physics', credits: 4 },
+          { name: 'Calculus and ODE', credits: 4 },
+          { name: 'Basic Electronics', credits: 4 },
+          { name: 'Basic Electronics Lab', credits: 1.5 },
+          { name: 'Programming for Problem Solving', credits: 4.5 },
+          { name: 'Technical Communication in English', credits: 3 },
+          { name: 'Indian Knowledge System', credits: 1 },
+        ],
+        2: [
+          { name: 'Human Values and Ethics', credits: 3 },
+          { name: 'Environmental Science', credits: 1 },
+          { name: 'Linear Algebra and Complex Analysis', credits: 4 },
+          { name: 'Data Structures and Algorithms', credits: 4.5 },
+          { name: 'UG Physics Laboratory', credits: 1.5 },
+          { name: 'Introduction to Scripting Languages', credits: 1 },
+          { name: 'Semiconductor Devices and Circuits', credits: 3 },
+          { name: 'Analog Electronics', credits: 3 },
+          { name: 'Analog Electronics Lab', credits: 1.5 },
+        ],
+        3: [
+          { name: 'Probability and Statistics', credits: 4 },
+          { name: 'Signals and Systems', credits: 3 },
+          { name: 'Signals and Systems Lab', credits: 1.5 },
+          { name: 'Digital Circuit and Systems', credits: 3 },
+          { name: 'Digital Circuit and Systems Lab', credits: 1.5 },
+          { name: 'Engineering Electromagnetics', credits: 3 },
+          { name: 'Microprocessor and Microcontroller', credits: 3 },
+          { name: 'Microprocessor and Microcontroller Lab', credits: 1.5 },
+          { name: 'Network Analysis and Synthesis', credits: 3 },
+        ],
+        4: [
+          { name: 'Constitutional Studies', credits: 1 },
+          { name: 'Analog and Digital Communication', credits: 3 },
+          { name: 'Analog and Digital Communication Lab', credits: 1.5 },
+          { name: 'Fundamentals of VLSI', credits: 3 },
+          { name: 'VLSI Lab', credits: 1.5 },
+          { name: 'Microwave Engineering', credits: 3 },
+          { name: 'Microwave Engineering Lab', credits: 1.5 },
+          { name: 'Design and Project Lab', credits: 1.5 },
+          { name: 'Introduction to AI and ML', credits: 4 },
+        ],
+        5: [
+          { name: 'Summer Internship / Project', credits: 4 },
+          { name: 'Psychology Technology and Society', credits: 3 },
+          { name: 'Wireless Communication', credits: 3 },
+          { name: 'Wireless Communication Lab', credits: 1.5 },
+          { name: 'Control System Engineering', credits: 4 },
+          { name: 'Digital Signal Processing', credits: 3 },
+          { name: 'Digital Signal Processing Lab', credits: 1.5 },
+          { name: 'Program Elective 1', credits: 3 },
+        ],
+        6: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Introduction to Economics', credits: 3 },
+          { name: 'Seminar and Presentation Skills', credits: 1 },
+          { name: '5G Wireless Systems and Beyond', credits: 3 },
+          { name: 'Computer Communication Networks', credits: 4 },
+          { name: 'Program Elective 2', credits: 3 },
+          { name: 'Program Elective 3', credits: 3 },
+          { name: 'Open Elective 1', credits: 3 },
+        ],
+        7: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Program Elective 4', credits: 3 },
+          { name: 'Program Elective 5', credits: 3 },
+          { name: 'Open Elective 2', credits: 3 },
+          { name: 'Open Elective 3', credits: 3 },
+        ],
+        8: 'FLEXIBLE',
+      }
+    },
+    CCE: {
+      name: 'Communication and Computer Engineering',
+      semesters: {
+        1: [
+          { name: 'Classical Physics', credits: 4 },
+          { name: 'Calculus and ODE', credits: 4 },
+          { name: 'Basic Electronics', credits: 4 },
+          { name: 'Basic Electronics Lab', credits: 1.5 },
+          { name: 'Programming for Problem Solving', credits: 4.5 },
+          { name: 'Technical Communication in English', credits: 3 },
+          { name: 'Indian Knowledge System', credits: 1 },
+        ],
+        2: [
+          { name: 'Human Values and Ethics', credits: 3 },
+          { name: 'Environmental Science', credits: 1 },
+          { name: 'Linear Algebra and Complex Analysis', credits: 4 },
+          { name: 'Data Structures and Algorithms', credits: 4.5 },
+          { name: 'UG Physics Laboratory', credits: 1.5 },
+          { name: 'Introduction to Scripting Languages', credits: 1 },
+          { name: 'Digital Systems', credits: 4 },
+          { name: 'Discrete Mathematics', credits: 3 },
+        ],
+        3: [
+          { name: 'Probability and Statistics', credits: 4 },
+          { name: 'Design and Analysis of Algorithms', credits: 4 },
+          { name: 'Signals and Systems', credits: 4 },
+          { name: 'Computer Organization and Architecture', credits: 3 },
+          { name: 'Database Management Systems', credits: 4 },
+          { name: 'Object Oriented Programming', credits: 4 },
+        ],
+        4: [
+          { name: 'Constitutional Studies', credits: 1 },
+          { name: 'Web Programming', credits: 1 },
+          { name: 'Operating Systems', credits: 4 },
+          { name: 'Computer Communication Networks', credits: 4 },
+          { name: 'Analog and Digital Communication', credits: 3 },
+          { name: 'Analog and Digital Communication Lab', credits: 1.5 },
+          { name: 'Embedded Systems and IoT', credits: 4.5 },
+          { name: 'Program Elective 1', credits: 3 },
+        ],
+        5: [
+          { name: 'Summer Internship / Project', credits: 4 },
+          { name: 'Psychology Technology and Society', credits: 3 },
+          { name: 'Wireless Communication', credits: 3 },
+          { name: 'Wireless Communication Lab', credits: 1.5 },
+          { name: 'Software Engineering', credits: 3 },
+          { name: 'Digital Signal Processing', credits: 3 },
+          { name: 'Digital Signal Processing Lab', credits: 1.5 },
+          { name: 'Software Development Lab', credits: 1 },
+          { name: 'Program Elective 2', credits: 3 },
+        ],
+        6: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Introduction to Economics', credits: 3 },
+          { name: 'Seminar and Presentation Skills', credits: 1 },
+          { name: 'Information Theory and Coding', credits: 3 },
+          { name: 'Control System Engineering', credits: 3 },
+          { name: 'Introduction to AI and ML', credits: 4 },
+          { name: 'Program Elective 3', credits: 3 },
+        ],
+        7: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Program Elective 4', credits: 3 },
+          { name: 'Program Elective 5', credits: 3 },
+          { name: 'Open Elective 1', credits: 3 },
+          { name: 'Open Elective 2', credits: 3 },
+        ],
+        8: 'FLEXIBLE',
+      }
+    },
+    AIDS: {
+      name: 'Artificial Intelligence and Data Science',
+      semesters: {
+        1: [
+          { name: 'Classical Physics', credits: 4 },
+          { name: 'Calculus and ODE', credits: 4 },
+          { name: 'Basic Electronics', credits: 4 },
+          { name: 'Basic Electronics Lab', credits: 1.5 },
+          { name: 'Programming for Problem Solving', credits: 4.5 },
+          { name: 'Technical Communication in English', credits: 3 },
+          { name: 'Indian Knowledge System', credits: 1 },
+        ],
+        2: [
+          { name: 'Human Values and Ethics', credits: 3 },
+          { name: 'Environmental Science', credits: 1 },
+          { name: 'Linear Algebra and Complex Analysis', credits: 4 },
+          { name: 'Data Structures and Algorithms', credits: 4.5 },
+          { name: 'UG Physics Laboratory', credits: 1.5 },
+          { name: 'Introduction to AI and Data Science', credits: 4 },
+          { name: 'Discrete Mathematics', credits: 3 },
+        ],
+        3: [
+          { name: 'Probability and Statistics', credits: 4 },
+          { name: 'Database Management Systems', credits: 3 },
+          { name: 'Object Oriented Programming', credits: 3 },
+          { name: 'Design and Analysis of Algorithms', credits: 4 },
+          { name: 'Computer System Design', credits: 4 },
+          { name: 'Optimization and Numerical Methods', credits: 3 },
+          { name: 'Project Lab', credits: 1 },
+        ],
+        4: [
+          { name: 'Constitutional Studies', credits: 1 },
+          { name: 'Introduction to Statistical Machine Learning', credits: 4 },
+          { name: 'Computer Networks', credits: 4 },
+          { name: 'Information Coding and Theory', credits: 3 },
+          { name: 'Computational Theory and Language Processing', credits: 3 },
+          { name: 'Game Theory', credits: 3 },
+          { name: 'Program Elective 1', credits: 3 },
+        ],
+        5: [
+          { name: 'Summer Internship / Project', credits: 4 },
+          { name: 'Psychology Technology and Society', credits: 3 },
+          { name: 'Deep Learning', credits: 4 },
+          { name: 'Artificial Intelligence', credits: 4 },
+          { name: 'Internet of Things', credits: 4 },
+          { name: 'Program Elective 2', credits: 3 },
+        ],
+        6: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Introduction to Economics', credits: 3 },
+          { name: 'Disaster Management', credits: 2 },
+          { name: 'Ethics and Responsible AI', credits: 3 },
+          { name: 'Large Language Models', credits: 4 },
+          { name: 'Reinforcement Learning', credits: 3 },
+          { name: 'Program Elective 3', credits: 3 },
+        ],
+        7: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Program Elective 4', credits: 3 },
+          { name: 'Program Elective 5', credits: 3 },
+          { name: 'Program Elective 6', credits: 3 },
+          { name: 'Open Elective 1', credits: 3 },
+          { name: 'Open Elective 2', credits: 3 },
+        ],
+        8: 'FLEXIBLE',
+      }
+    },
+    AI: {
+      name: 'Artificial Intelligence',
+      semesters: {
+        1: [
+          { name: 'Classical Physics', credits: 4 },
+          { name: 'Calculus and ODE', credits: 4 },
+          { name: 'Basic Electronics', credits: 4 },
+          { name: 'Basic Electronics Lab', credits: 1.5 },
+          { name: 'Programming for Problem Solving', credits: 4.5 },
+          { name: 'Technical Communication in English', credits: 3 },
+          { name: 'Indian Knowledge System', credits: 1 },
+        ],
+        2: [
+          { name: 'Human Values and Ethics', credits: 3 },
+          { name: 'Environmental Science', credits: 1 },
+          { name: 'Linear Algebra and Complex Analysis', credits: 4 },
+          { name: 'Data Structures and Algorithms', credits: 4.5 },
+          { name: 'UG Physics Laboratory', credits: 1.5 },
+          { name: 'Computer System Design', credits: 3 },
+          { name: 'Discrete Mathematics', credits: 3 },
+          { name: 'Introduction to Scripting Language', credits: 1 },
+        ],
+        3: [
+          { name: 'Probability and Statistics', credits: 4 },
+          { name: 'Introduction to AI and Data Science', credits: 3 },
+          { name: 'Optimization and Numerical Methods', credits: 4 },
+          { name: 'Database Management Systems', credits: 4 },
+          { name: 'Object Oriented Programming', credits: 4 },
+          { name: 'Design and Analysis of Algorithms', credits: 4 },
+        ],
+        4: [
+          { name: 'Constitutional Studies', credits: 1 },
+          { name: 'Introduction to Statistical Machine Learning', credits: 4 },
+          { name: 'Computational Thinking and Neuroscience', credits: 3 },
+          { name: 'Big Data Systems', credits: 4 },
+          { name: 'Data Wrangling and Visualization', credits: 1 },
+          { name: 'Data Mining', credits: 3 },
+          { name: 'Program Elective 1', credits: 3 },
+        ],
+        5: [
+          { name: 'Summer Internship / Project', credits: 4 },
+          { name: 'Psychology Technology and Society', credits: 3 },
+          { name: 'Deep Learning', credits: 4 },
+          { name: 'Artificial Intelligence', credits: 4 },
+          { name: 'Time Series Analysis and Forecasting', credits: 4 },
+          { name: 'Program Elective 2', credits: 3 },
+        ],
+        6: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Introduction to Economics', credits: 3 },
+          { name: 'Disaster Management', credits: 2 },
+          { name: 'Natural Language Processing', credits: 3 },
+          { name: 'Computer Vision', credits: 3 },
+          { name: 'Soft Computing', credits: 3 },
+          { name: 'Program Elective 3', credits: 4 },
+        ],
+        7: [
+          { name: 'BTP', credits: 4 },
+          { name: 'Program Elective 4', credits: 3 },
+          { name: 'Program Elective 5', credits: 3 },
+          { name: 'Program Elective 6', credits: 3 },
+          { name: 'Open Elective 1', credits: 3 },
+          { name: 'Open Elective 2', credits: 3 },
+        ],
+        8: 'FLEXIBLE',
+      }
+    },
+  };
+
+  const GRADE_POINTS = { A: 10, AB: 9, B: 8, BC: 7, C: 6, CD: 5, D: 4, F: 0 };
+  const GRADES = ['A', 'AB', 'B', 'BC', 'C', 'CD', 'D', 'F'];
+
+  // ═══════════════════════════════════════════════
+  //  STATE
+  // ═══════════════════════════════════════════════
+  let selectedBranch = null;
+  let selectedSem    = null;
+  let typewriterQueue = [];
+
+  // ═══════════════════════════════════════════════
+  //  BRANCH BLOCKS
+  // ═══════════════════════════════════════════════
+  const BRANCH_ORDER = [
+    { code: 'CSE',  label: 'Computer Science & Engineering', disabled: false },
+    { code: 'ME',   label: 'Mechanical Engineering',          disabled: false },
+    { code: 'ECE',  label: 'Electronics & Communication Eng.',disabled: false },
+    { code: 'CCE',  label: 'Communication & Computer Eng.',   disabled: false },
+    { code: 'AIDS', label: 'Artificial Intelligence & Data Science', disabled: false },
+    { code: 'AI',   label: 'Artificial Intelligence',         disabled: false },
+    { code: 'CSE_CS', label: 'CSE (Cyber Security)',          disabled: true },
+    { code: 'ECE_V',  label: 'ECE (VLSI Design & Technology)',disabled: true },
+  ];
+
+  function renderBranchGrid() {
+    const grid = document.getElementById('branch-grid');
+    grid.innerHTML = '';
+    BRANCH_ORDER.forEach(b => {
+      const div = document.createElement('div');
+      div.className = 'branch-block' + (b.disabled ? ' disabled' : '');
+      div.dataset.code = b.code;
+      div.innerHTML = `
+        <span class="branch-code">${b.code.replace('_CS','').replace('_V','')}</span>
+        <span class="branch-name">${b.label}</span>
+        ${b.disabled ? '<span class="coming-soon-tag">[ COMING SOON ]</span>' : ''}
+      `;
+      if (!b.disabled) {
+        div.addEventListener('click', () => selectBranch(b.code));
+      }
+      grid.appendChild(div);
+    });
+  }
+
+  function selectBranch(code) {
+    if (selectedBranch === code) return;
+    selectedBranch = code;
+    selectedSem = null;
+    document.querySelectorAll('.branch-block').forEach(el => {
+      el.classList.toggle('active', el.dataset.code === code);
+    });
+    renderSemesters();
+    hideCourses();
+    hideResult();
+  }
+
+  // ═══════════════════════════════════════════════
+  //  SEMESTER BLOCKS
+  // ═══════════════════════════════════════════════
+  function renderSemesters() {
+    const sec = document.getElementById('semester-section');
+    const row = document.getElementById('semester-row');
+    row.innerHTML = '';
+    for (let s = 1; s <= 8; s++) {
+      const btn = document.createElement('div');
+      btn.className = 'sem-block';
+      btn.textContent = `SEM 0${s}`;
+      btn.dataset.sem = s;
+      btn.addEventListener('click', () => selectSem(s));
+      row.appendChild(btn);
+    }
+    sec.classList.add('visible');
+  }
+
+  function selectSem(sem) {
+    if (selectedSem === sem) return;
+    selectedSem = sem;
+    document.querySelectorAll('.sem-block').forEach(el => {
+      el.classList.toggle('active', +el.dataset.sem === sem);
+    });
+    renderCourses(sem);
+    hideResult();
+  }
+
+  // ═══════════════════════════════════════════════
+  //  COURSE ROWS (with typewriter)
+  // ═══════════════════════════════════════════════
+  function renderCourses(sem) {
+    const sec      = document.getElementById('courses-section');
+    const list     = document.getElementById('courses-list');
+    const sem8Wrap = document.getElementById('sem8-wrap');
+    const customList = document.getElementById('custom-rows-list');
+
+    // Clear old typewriter queue
+    typewriterQueue = [];
+    list.innerHTML = '';
+    sem8Wrap.style.display = 'none';
+    customList.innerHTML = '';
+
+    const branchData = CURRICULUM[selectedBranch];
+    if (!branchData) return;
+
+    const semData = branchData.semesters[sem];
+    sec.classList.add('visible');
+
+    if (semData === 'FLEXIBLE') {
+      sem8Wrap.style.display = 'block';
+      return;
+    }
+
+    // Schedule typewriter for each course
+    semData.forEach((course, i) => {
+      setTimeout(() => {
+        const sf = isSFCourse(selectedBranch, sem, course.name);
+        const row = document.createElement('div');
+        row.className = 'course-row';
+        row.dataset.idx = i;
+        row.dataset.sf = sf ? 'true' : 'false';
+
+        if (sf) {
+          // Hardcoded S/F course — no dropdown, no SF tag
+          row.innerHTML = `
+            <span class="course-name">${course.name}</span>
+            <span class="credit-badge" style="color:var(--gray-dim);border-color:#1a1a1a;">S/F</span>
+            <div class="sf-toggle" data-idx="${i}">
+              <button class="sf-btn sf-active" data-val="S">S</button>
+              <button class="sf-btn" data-val="F">F</button>
+            </div>
+            <span></span>
+          `;
+          // Wire toggle buttons
+          const toggle = row.querySelector('.sf-toggle');
+          toggle.querySelectorAll('.sf-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              toggle.querySelectorAll('.sf-btn').forEach(b => {
+                b.classList.remove('sf-active', 'sf-fail-active');
+              });
+              if (btn.dataset.val === 'S') btn.classList.add('sf-active');
+              else btn.classList.add('sf-fail-active');
+              toggle.dataset.selected = btn.dataset.val;
+            });
+          });
+          toggle.dataset.selected = 'S'; // default S
+        } else {
+          // Regular graded course — grade dropdown + [S/F] tag button
+          row.innerHTML = `
+            <span class="course-name">${course.name}</span>
+            <span class="credit-badge" data-credit-badge>${course.credits}</span>
+            <select class="grade-select" data-idx="${i}">
+              ${GRADES.map(g => `<option value="${g}">${g}</option>`).join('')}
+            </select>
+            <button class="sf-tag-btn" title="Mark as S/F graded">S/F</button>
+          `;
+          // Wire the SF tag button to toggle the row into SF mode
+          const tagBtn  = row.querySelector('.sf-tag-btn');
+          const sel     = row.querySelector('.grade-select');
+          const credBadge = row.querySelector('[data-credit-badge]');
+          tagBtn.addEventListener('click', () => {
+            const isNowSF = !row.classList.contains('user-sf');
+            row.classList.toggle('user-sf', isNowSF);
+            tagBtn.classList.toggle('sf-tag-active', isNowSF);
+            row.dataset.sf = isNowSF ? 'true' : 'false';
+            if (isNowSF) {
+              // Replace dropdown with S/F toggle
+              sel.style.display = 'none';
+              credBadge.style.color = 'var(--gray-dim)';
+              credBadge.style.borderColor = '#1a1a1a';
+              // Build toggle if not already there
+              if (!row.querySelector('.sf-toggle')) {
+                const tog = document.createElement('div');
+                tog.className = 'sf-toggle';
+                tog.dataset.selected = 'S';
+                tog.innerHTML = `
+                  <button class="sf-btn sf-active" data-val="S">S</button>
+                  <button class="sf-btn" data-val="F">F</button>
+                `;
+                tog.querySelectorAll('.sf-btn').forEach(btn => {
+                  btn.addEventListener('click', () => {
+                    tog.querySelectorAll('.sf-btn').forEach(b => b.classList.remove('sf-active','sf-fail-active'));
+                    if (btn.dataset.val === 'S') btn.classList.add('sf-active');
+                    else btn.classList.add('sf-fail-active');
+                    tog.dataset.selected = btn.dataset.val;
+                  });
+                });
+                sel.insertAdjacentElement('afterend', tog);
+              } else {
+                row.querySelector('.sf-toggle').style.display = 'flex';
+              }
+            } else {
+              // Revert to grade dropdown
+              sel.style.display = '';
+              credBadge.style.color = '';
+              credBadge.style.borderColor = '';
+              const tog = row.querySelector('.sf-toggle');
+              if (tog) tog.style.display = 'none';
+              row.dataset.sf = 'false';
+            }
+          });
+        }
+
+        list.appendChild(row);
+        // Force reflow for transition
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => row.classList.add('appeared'));
+        });
+      }, i * 80);
+    });
+  }
+
+  function hideCourses() {
+    document.getElementById('courses-section').classList.remove('visible');
+    document.getElementById('courses-list').innerHTML = '';
+    document.getElementById('sem8-wrap').style.display = 'none';
+    document.getElementById('custom-rows-list').innerHTML = '';
+  }
+
+  // ═══════════════════════════════════════════════
+  //  SEM 8 CUSTOM ROWS
+  // ═══════════════════════════════════════════════
+  let customRowId = 0;
+
+  document.getElementById('add-row-btn').addEventListener('click', () => {
+    const customList = document.getElementById('custom-rows-list');
+    const id = ++customRowId;
+    const row = document.createElement('div');
+    row.className = 'custom-course-row';
+    row.dataset.rowid = id;
+    row.innerHTML = `
+      <input class="custom-input" placeholder="Course name..." type="text" data-field="name" />
+      <input class="custom-input" placeholder="Cr." type="number" min="0.5" max="6" step="0.5" data-field="credits" style="text-align:center;" />
+      <select class="grade-select">
+        ${GRADES.map(g => `<option value="${g}">${g}</option>`).join('')}
+      </select>
+      <button class="remove-row-btn" data-rowid="${id}">×</button>
+    `;
+    customList.appendChild(row);
+    row.querySelector('.remove-row-btn').addEventListener('click', function() {
+      const rid = this.dataset.rowid;
+      document.querySelector(`.custom-course-row[data-rowid="${rid}"]`).remove();
+    });
+  });
+
+  // ═══════════════════════════════════════════════
+  //  CALCULATE
+  // ═══════════════════════════════════════════════
+  document.getElementById('calc-btn').addEventListener('click', calculate);
+
+  function calculate() {
+    const list = document.getElementById('courses-list');
+    const branchData = CURRICULUM[selectedBranch];
+    const semData    = branchData ? branchData.semesters[selectedSem] : null;
+
+    let rows = [];
+
+    if (semData === 'FLEXIBLE') {
+      // Gather custom rows
+      document.querySelectorAll('.custom-course-row').forEach(row => {
+        const name    = row.querySelector('[data-field="name"]').value.trim();
+        const credits = parseFloat(row.querySelector('[data-field="credits"]').value);
+        const grade   = row.querySelector('.grade-select').value;
+        if (!name) { showToast('ERROR: COURSE NAME MISSING IN A ROW'); return; }
+        if (!credits || isNaN(credits) || credits <= 0) { showToast('ERROR: INVALID CREDITS IN A ROW'); return; }
+        rows.push({ name, credits, grade });
+      });
+      if (rows.length === 0) {
+        showToast('ERROR: NO COURSE ROWS FOUND. ADD ROWS FIRST.');
+        return;
+      }
+    } else {
+      if (!semData) { showToast('ERROR: NO SEMESTER DATA'); return; }
+      // Gather from rendered rows
+      const courseRows = list.querySelectorAll('.course-row');
+      if (courseRows.length === 0) { showToast('ERROR: NO COURSES RENDERED'); return; }
+      courseRows.forEach((row, i) => {
+        const name    = semData[i].name;
+        const credits = semData[i].credits;
+        const sf      = row.dataset.sf === 'true';
+        if (sf) {
+          const toggle = row.querySelector('.sf-toggle');
+          const val = toggle ? (toggle.style.display === 'none' ? 'S' : toggle.dataset.selected) : 'S';
+          rows.push({ name, credits, grade: val, isSF: true });
+        } else {
+          const sel = row.querySelector('.grade-select');
+          const grade = sel ? sel.value : 'A';
+          rows.push({ name, credits, grade, isSF: false });
+        }
+      });
+    }
+
+    // Compute (exclude S/F courses from SGPA numerator & denominator)
+    let totalWeighted  = 0;
+    let sgpaCredits    = 0;   // credits used in SGPA calc
+    let earnedCredits  = 0;   // credits earned = SGPA credits + S-passed SF credits
+    let semesterCredits = 0;  // full semester credit total
+
+    rows.forEach(r => {
+      semesterCredits += r.credits;
+      if (r.isSF) {
+        r.gradePoints   = null;
+        r.weightedScore = null;
+        if (r.grade === 'S') earnedCredits += r.credits; // S = passed
+      } else {
+        const gp = GRADE_POINTS[r.grade];
+        r.gradePoints   = gp;
+        r.weightedScore = gp * r.credits;
+        totalWeighted  += r.weightedScore;
+        sgpaCredits    += r.credits;
+        earnedCredits  += r.credits; // all SGPA courses count toward earned
+      }
+    });
+
+    const sgpa = sgpaCredits > 0 ? totalWeighted / sgpaCredits : 0;
+    // Avg weighted score only among counted (non-SF) courses
+    const countedRows = rows.filter(r => !r.isSF);
+    const avgWS = countedRows.length > 0 ? totalWeighted / countedRows.length : 0;
+
+    // Show result
+    showResult(sgpa, rows, avgWS, sgpaCredits, totalWeighted, earnedCredits, semesterCredits);
+  }
+
+  // ═══════════════════════════════════════════════
+  //  RESULT DISPLAY
+  // ═══════════════════════════════════════════════
+  function showResult(sgpa, rows, avgWS, totalCr, totalWt, earnedCr, semCr) {
+    const sec = document.getElementById('result-section');
+    sec.classList.add('visible');
+
+    // Animate SGPA counter
+    animateCounter(document.getElementById('sgpa-display'), 0, sgpa, 1500);
+    document.getElementById('footer-sgpa').textContent = sgpa.toFixed(4);
+    // Credits earned display
+    document.getElementById('credits-earned-display').textContent =
+      earnedCr + ' / ' + semCr + ' cr';
+
+    // Status
+    let status;
+    if (sgpa >= 9.0)      status = 'STATUS: OUTSTANDING';
+    else if (sgpa >= 8.0) status = 'STATUS: EXCELLENT';
+    else if (sgpa >= 7.0) status = 'STATUS: GOOD';
+    else if (sgpa >= 6.0) status = 'STATUS: AVERAGE';
+    else                  status = 'STATUS: NEEDS IMPROVEMENT';
+    document.getElementById('sgpa-status').textContent = status;
+
+    // Breakdown table
+    const tbody = document.getElementById('breakdown-body');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      if (r.isSF) {
+        tr.innerHTML = `
+          <td class="course-col">${r.name}</td>
+          <td style="color:var(--gray-dim);">${r.credits}</td>
+          <td style="color:var(--gray-dim);">${r.grade}</td>
+          <td style="color:var(--gray-dim);">—</td>
+          <td style="color:var(--gray-dim);font-style:italic;">NOT COUNTED</td>
+        `;
+      } else {
+        const aboveAvg = r.weightedScore >= avgWS;
+        tr.innerHTML = `
+          <td class="course-col">${r.name}</td>
+          <td>${r.credits}</td>
+          <td>${r.grade}</td>
+          <td>${r.gradePoints}</td>
+          <td class="${aboveAvg ? 'ws-above' : 'ws-below'}">${r.weightedScore.toFixed(2)}</td>
+        `;
+      }
+      tbody.appendChild(tr);
+    });
+
+    // Scroll into view
+    sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function hideResult() {
+    const sec = document.getElementById('result-section');
+    sec.classList.remove('visible');
+  }
+
+  // ═══════════════════════════════════════════════
+  //  COUNTER ANIMATION
+  // ═══════════════════════════════════════════════
+  function animateCounter(el, from, to, duration) {
+    const startTime = performance.now();
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const val = from + (to - from) * eased;
+      el.textContent = val.toFixed(2);
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = to.toFixed(2);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ═══════════════════════════════════════════════
+  //  TOAST
+  // ═══════════════════════════════════════════════
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ═══════════════════════════════════════════════
+  //  INIT
+  // ═══════════════════════════════════════════════
+  renderBranchGrid();
+  </script>
+</body>
+</html>
